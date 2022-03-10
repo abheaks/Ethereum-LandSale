@@ -25,9 +25,9 @@
 
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const infuraKey = "32b5714ba6c441408d5e03a6f7c94fb0";//Project ID
-const mnemonic = "";// Metamask security recovry key
+const mnemonic = "sting stomach evil border real sight lock giraffe plastic borrow special then";// Metamask security recovry
 addressIndex = 1;
-numberOfAddresses = 3;
+numberOfAddresses = 4;
 
 module.exports = {
   /**

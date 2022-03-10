@@ -2,6 +2,7 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import Switch from "@mui/material/Switch";
@@ -14,7 +15,7 @@ export default function HomePage(props) {
   const [auth, setAuth] = React.useState(false);
 
   const myContract = props.myContract;
-  const web3=props.web3;
+
   const history = useHistory();
 
   const redirectHandle = () => {
@@ -25,23 +26,7 @@ export default function HomePage(props) {
     const ethereum = window.ethereum;
     await ethereum.request({ method: "eth_requestAccounts" }).then(
       setAuth(event.target.checked)
-    
     );    
-    
-    if(auth==true){
-      console.log("You were logged in");
-      //await web3.clearCachedProvider();
-      const ethereum = window.ethereum;
-      //await ethereum.on('disconnect');
-      ethereum.on('disconnect', function (error) { return false; });
-
-      console.log("You have logged out",ethereum.isConnected());
-     
-    }
-    // const logoutMeta = async (event) => {
-    //   await props.web3.clearCachedProvider()
-    // }
-    
   };
 
   return (
@@ -62,14 +47,14 @@ export default function HomePage(props) {
                 label={auth ? "Logout" : "Login"}
               />
             </FormGroup>
-            
+            <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
               LAND MARKETPLACE
-           
+            </Typography>
             {auth && (
               <div className="Register">
-                
+                <Typography variant="h5" component="div" sx={{ paddingTop: 1 }}>
                   Register New Land
-                
+                </Typography>
                 <IconButton size="large" color="inherit">
                   <AddBoxIcon onClick={redirectHandle} />
                 </IconButton>
@@ -77,7 +62,7 @@ export default function HomePage(props) {
             )}
           </Toolbar>
         </AppBar>
-        <MarketPlace myContract={myContract} Auth={auth} />
+        <MarketPlace myContract={myContract} />
       </Box>
     </div>
   );

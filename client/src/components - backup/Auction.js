@@ -44,7 +44,6 @@ export default function Auction(props) {
   const ethereum = window.ethereum;
   const web3 = props.web3;
 
-
   useEffect(() => {
     getLandDetails();
     getEventDetails();
@@ -58,7 +57,6 @@ export default function Auction(props) {
   const [landDocs, setLandDocs] = useState();
   const [landPrice, setLandPrice] = useState();
   const [eventDetails, setEventDetails] = useState("");
-  const [landExpiry, setLandExpiry] = useState();
 
   const getLandDetails = async () => {
     let land = await myContract.methods.getLandDetails(landId).call();
@@ -70,8 +68,6 @@ export default function Auction(props) {
 
     setLandDocs(web3.utils.hexToUtf8(land.documentHash));
     setLandData(land);
-    const date = new Date(land.expiry * 1000);
-    setLandExpiry(date.toLocaleDateString())
   };
 
   const getEventDetails = async () => {
@@ -105,23 +101,10 @@ export default function Auction(props) {
       .send({ from: ethereum.selectedAddress, value: landPrice });
   };
 
-  const instaBuySubmitHandler = async (event) => {
-    let ownerContract = await myContract.methods.owner().call();
-    console.log("Owner Of Contract", ownerContract);
-    console.log("Etherum add", ethereum.selectedAddress);
-    await myContract.methods
-      .instantBuy(landId)
-      .send({ from: ethereum.selectedAddress, value: landData.landValue });
-    await myContract.methods
-      .assetTransfer(landId)
-      .call();
-  };
-
-
   const acceptBidSubmitHandler = async (event) => {
     await myContract.methods
-      .acceptBid(landId)
-      .send({ from: ethereum.selectedAddress });
+    .acceptBid(landId)
+    .send({ from: ethereum.selectedAddress });
   };
 
   return (
@@ -221,82 +204,42 @@ export default function Auction(props) {
                 </Typography>
               </Item>
               <br />
-              <Item>
-                <Typography align="left">
-                  <b> Expiry Date </b>
-                  {landExpiry}
-                </Typography>
-              </Item>
-              <br />
             </Grid>
-            {landData.bidType === "Expiry Bid" ?
-              isOwner ?
-                <Grid item xs={12}>
+            {isOwner ?
+              <Grid item xs={12}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={acceptBidSubmitHandler}
+                  sx={{ height: 40 }}
+                  color="primary"
+                >
+                  Accept Bid
+                </Button>
+              </Grid> :
+              <>
+                <Grid item xs={6}>
+                  <TextField
+                    required
+                    label="Bid Value"
+                    helperText="Provide your bid value (should be greater than last bid)"
+                    variant="outlined"
+                    onChange={priceChangeHandler}
+                    sx={{ width: "100%" }}
+                  />
+                </Grid>
+                <Grid item xs={6}>
                   <Button
                     fullWidth
+                    sx={{ height: 55 }}
+                    onClick={bidSubmitHandler}
                     variant="contained"
-                    onClick={acceptBidSubmitHandler}
-                    sx={{ height: 40 }}
                     color="primary"
                   >
-                    Accept Bid
+                    Place Bid
                   </Button>
-                </Grid> :
-                landData.expired ?
-                  <div>Bid expired</div>
-                  :
-                  <>
-                    <Grid item xs={6}>
-                      <TextField
-                        required
-                        label="Bid Value"
-                        helperText="Provide your bid value (should be greater than last bid)"
-                        variant="outlined"
-                        onChange={priceChangeHandler}
-                        sx={{ width: "100%" }}
-                      />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Button
-                        fullWidth
-                        sx={{ height: 55 }}
-                        onClick={bidSubmitHandler}
-                        variant="contained"
-                        color="primary"
-                      >
-                        Place Bid
-                      </Button>
-                    </Grid>
-                  </> : landData.bidType === "No Bid" ?
-                <div>This Land is not for sale</div> :
-                isOwner ?
-                  <Grid item xs={12}>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      onClick={acceptBidSubmitHandler}
-                      sx={{ height: 40 }}
-                      color="primary"
-                    >
-                      Approve
-                    </Button>
-                  </Grid>
-                  : landData.salesStatus ?
-                    <div>Waiting for approval</div>
-                    :
-                    <Grid item xs={12}>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        onClick={instaBuySubmitHandler}
-                        sx={{ height: 40 }}
-                        color="primary"
-                      >
-                        Buy
-                      </Button>
-                    </Grid>
-            }
-
+                </Grid>
+              </>}
           </Grid>
         )}
         <Divider />

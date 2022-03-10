@@ -2,40 +2,73 @@
 
 pragma solidity ^0.8.1;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol"; 
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract LandRegistration is ERC721 {
-
-    constructor() ERC721("Land","LND"){}
-
+contract LandRegistration is ERC721, Ownable {
+    constructor() ERC721("Land", "LND") {}
 
     struct LandDetail {
-        uint surveyNo;
+        uint256 surveyNo;
         string district;
         string taluk;
         string village;
-        uint blockNo;
-        uint landValue; // in wei
-        uint area;
+        uint256 blockNo;
+        uint256 landValue; // in wei
+        uint256 area;
         bool salesStatus;
         bytes documentHash;
-    }
-    
-    mapping(uint => LandDetail) LandDetails;
-    
-    uint public registeredLandCount = 0;
-    
-    
-    function registerNewLand(uint surveyNo, string memory district, string memory taluk, string memory village, uint blockNo, uint landValue, uint area,bytes memory documentHash) public {
-        //function registerNewLand(uint surveyNo, string memory district, string memory taluk, string memory village, uint blockNo, uint landValue, uint area) public {
-        LandDetails[registeredLandCount] = LandDetail(surveyNo, district, taluk, village, blockNo, landValue, area, false,documentHash);
-        //LandDetails[registeredLandCount] = LandDetail(surveyNo, district, taluk, village, blockNo, landValue, area, false);
-        _mint(msg.sender, registeredLandCount);
-        registeredLandCount += 1;
-    }
-    
-    function getLandDetails(uint landID) view public returns(LandDetail memory) {
-        return LandDetails[landID];
+        uint256 expiry;
+        string bidType;
+        bool expired;
     }
 
+    mapping(uint256 => LandDetail) LandDetails;
+
+    uint256 public registeredLandCount = 0;
+
+    function registerNewLand(
+        uint256 surveyNo,
+        string memory district,
+        string memory taluk,
+        string memory village,
+        uint256 blockNo,
+        uint256 landValue,
+        uint256 area,
+        bytes memory documentHash,
+        uint256 expiry,
+        string memory bidType
+    ) public returns (uint256) {
+        //function registerNewLand(uint surveyNo, string memory district, string memory taluk, string memory village, uint blockNo, uint landValue, uint area) public {
+        LandDetails[registeredLandCount] = LandDetail(
+            surveyNo,
+            district,
+            taluk,
+            village,
+            blockNo,
+            landValue,
+            area,
+            false,
+            documentHash,
+            expiry,
+            bidType,
+            false
+        );
+
+        //LandDetails[registeredLandCount] = LandDetail(surveyNo, district, taluk, village, blockNo, landValue, area, false);
+        _mint(msg.sender, registeredLandCount);
+        //setApprovalForAll(owner(), true);
+        approve(owner(), registeredLandCount);
+        registeredLandCount += 1;
+
+        return (registeredLandCount - 1);
+    }
+
+    function getLandDetails(uint256 landID)
+        public
+        view
+        returns (LandDetail memory)
+    {
+        return LandDetails[landID];
+    }
 }

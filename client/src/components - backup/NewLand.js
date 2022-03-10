@@ -30,11 +30,6 @@ const districts = [
   "Kannur",
   "Kasargod",
 ];
-const types=[
-  "No Bid",
-  "Instant Bid",
-  "Expiry Bid"
-];
 
 export default function NewLand(props) {
   const myContract = props.myContract;
@@ -50,18 +45,14 @@ export default function NewLand(props) {
   const [blockNo, setBlockNo] = useState("");
   const [price, setPrice] = useState("");
   const [area, setArea] = useState("");
-  const [hash, setHash] = useState("");
+  //const [hash, setHash] = useState("");
   const [file, setFile] = useState("");
   const [fileName, setFileName] = useState("");
-  const [bidType,setBidType]=useState("");
-  const [expiry,setBidExpiry]=useState("");
 
-  
   const handleDistricChange = (event) => {
     setDistrict(event.target.value);
   };
 
-  
   const talukChangeHandler = (event) => {
     setTaluk(event.target.value);
   };
@@ -91,17 +82,6 @@ export default function NewLand(props) {
     setFileName(event.target.files[0].name);
   };
 
-  const bidTypeChangeHandler = (event) => {
-    setBidType(event.target.value);
-  };
-
-  const expiryChangeHandler = (event) => {
-    
-    
-    setBidExpiry(new Date(event.target.value).getTime() / 1000);
-  };
-
-
   const submitHandler = async (event) => {
     event.preventDefault();
 
@@ -113,9 +93,7 @@ export default function NewLand(props) {
       console.log("Error uploading file: ", error);
     }
 
-    let LandID=await myContract.methods.registerNewLand(surveyNo, district, taluk, village, blockNo, price, area, web3.utils.asciiToHex(url),expiry,bidType).send({ from: ethereum.selectedAddress });
-    if(bidType=='Instant Bid')
-      await myContract.methods.approveforSale(LandID);
+    await myContract.methods.registerNewLand(surveyNo, district, taluk, village, blockNo, price, area, web3.utils.asciiToHex(url)).send({ from: ethereum.selectedAddress });
   };
 
   return (
@@ -228,53 +206,6 @@ export default function NewLand(props) {
                 sx={{ width: "100%" }}
               />
             </Grid>
-            <Grid container spacing={2}>
-            <Grid item xs={4}>
-              <TextField
-                select
-                required
-                label="BID TYPE"
-                value={bidType}
-                onChange={bidTypeChangeHandler}
-                helperText="Select Bid type"
-                variant="outlined"
-                sx={{ width: "100%" }}
-              >
-                {types.map((bidType) => (
-                  <MenuItem key={bidType} value={bidType}>
-                    {bidType}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            {props.bidType=="Expiry Bid"?
-            <Grid item xs={4}>
-              <TextField
-                
-                label="Expiry"
-                id="expiry"
-                helperText="Mention the expiry date"
-                variant="outlined"
-                onChange={expiryChangeHandler}
-                sx={{ width: "100%" }}
-              />
-            </Grid>
-            :
-            <Grid item xs={4}>
-              <TextField
-                
-                label="Expiry"
-                id="expiry"
-                helperText="Mention the expiry date"
-                variant="outlined"
-                onChange={expiryChangeHandler}
-                sx={{ width: "100%" }}
-              />
-            </Grid>
-            }
-
-            </Grid>
-            
 
             <Grid item xs={12}>
               <div>
@@ -297,8 +228,13 @@ export default function NewLand(props) {
                 </label>
               </div>
               <div>
-                
-                
+                <Typography variant="h6">
+                  <b>DECLARATION</b>
+                </Typography>
+                <Typography>
+                  I agree that the above information is correct and complete to
+                  the best of my knowledge and belief.
+                </Typography>
                 <br />
                 <Button
                   type="submit"
