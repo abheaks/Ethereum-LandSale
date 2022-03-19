@@ -37,7 +37,8 @@ contract LandRegistration is ERC721, Ownable {
         uint256 area,
         bytes memory documentHash,
         uint256 expiry,
-        string memory bidType
+        string memory bidType,
+        bool expired
     ) public returns (uint256) {
         //function registerNewLand(uint surveyNo, string memory district, string memory taluk, string memory village, uint blockNo, uint landValue, uint area) public {
         LandDetails[registeredLandCount] = LandDetail(
@@ -52,7 +53,7 @@ contract LandRegistration is ERC721, Ownable {
             documentHash,
             expiry,
             bidType,
-            false
+            expired
         );
 
         //LandDetails[registeredLandCount] = LandDetail(surveyNo, district, taluk, village, blockNo, landValue, area, false);

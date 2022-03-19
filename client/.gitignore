@@ -25,3 +25,4 @@ yarn-error.log*
 #truffle
 truffle-config.js
 node_modules
+/client/src/constant.js

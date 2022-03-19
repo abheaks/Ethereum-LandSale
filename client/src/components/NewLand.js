@@ -30,7 +30,7 @@ const districts = [
   "Kannur",
   "Kasargod",
 ];
-const types=[
+const types = [
   "No Bid",
   "Instant Bid",
   "Expiry Bid"
@@ -53,15 +53,16 @@ export default function NewLand(props) {
   const [hash, setHash] = useState("");
   const [file, setFile] = useState("");
   const [fileName, setFileName] = useState("");
-  const [bidType,setBidType]=useState("");
-  const [expiry,setBidExpiry]=useState("");
+  const [bidType, setBidType] = useState("");
+  const [expiry, setBidExpiry] = useState("");
+  var expired = false;
 
-  
+
   const handleDistricChange = (event) => {
     setDistrict(event.target.value);
   };
 
-  
+
   const talukChangeHandler = (event) => {
     setTaluk(event.target.value);
   };
@@ -96,8 +97,8 @@ export default function NewLand(props) {
   };
 
   const expiryChangeHandler = (event) => {
-    
-    
+
+
     setBidExpiry(new Date(event.target.value).getTime() / 1000);
   };
 
@@ -113,9 +114,26 @@ export default function NewLand(props) {
       console.log("Error uploading file: ", error);
     }
 
-    let LandID=await myContract.methods.registerNewLand(surveyNo, district, taluk, village, blockNo, price, area, web3.utils.asciiToHex(url),expiry,bidType).send({ from: ethereum.selectedAddress });
-    if(bidType=='Instant Bid')
-      await myContract.methods.approveforSale(LandID);
+    //Uploading all the land data to the IPFS
+    try {
+      const client = new NFTStorage({ token: NFT_STORAGE_KEY });
+      const metadata = await client.store({
+        surveyNo, district, taluk, village, blockNo, price, area, web3.utils.asciiToHex(url), expiry, bidType, expired
+      });
+    } catch (error) {
+      console.log("Error uploading file: ", error);
+    }
+
+
+    const date = new Date(expiry * 1000);
+    if (new Date().toLocaleDateString() >= date.toLocaleDateString()) {
+      expired = true;
+      console.log("Expired1", expired);
+    }
+    let LandID = await myContract.methods.registerNewLand(surveyNo, district, taluk, village, blockNo, price, area, web3.utils.asciiToHex(url), expiry, bidType, expired).send({ from: ethereum.selectedAddress });
+    await myContract.methods.approveforSale(LandID);
+    // if(bidType=='Instant Bid')
+    // await myContract.methods.approveforSale(LandID);
   };
 
   return (
@@ -229,52 +247,52 @@ export default function NewLand(props) {
               />
             </Grid>
             <Grid container spacing={2}>
-            <Grid item xs={4}>
-              <TextField
-                select
-                required
-                label="BID TYPE"
-                value={bidType}
-                onChange={bidTypeChangeHandler}
-                helperText="Select Bid type"
-                variant="outlined"
-                sx={{ width: "100%" }}
-              >
-                {types.map((bidType) => (
-                  <MenuItem key={bidType} value={bidType}>
-                    {bidType}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            {props.bidType=="Expiry Bid"?
-            <Grid item xs={4}>
-              <TextField
-                
-                label="Expiry"
-                id="expiry"
-                helperText="Mention the expiry date"
-                variant="outlined"
-                onChange={expiryChangeHandler}
-                sx={{ width: "100%" }}
-              />
-            </Grid>
-            :
-            <Grid item xs={4}>
-              <TextField
-                
-                label="Expiry"
-                id="expiry"
-                helperText="Mention the expiry date"
-                variant="outlined"
-                onChange={expiryChangeHandler}
-                sx={{ width: "100%" }}
-              />
-            </Grid>
-            }
+              <Grid item xs={4}>
+                <TextField
+                  select
+                  required
+                  label="BID TYPE"
+                  value={bidType}
+                  onChange={bidTypeChangeHandler}
+                  helperText="Select Bid type"
+                  variant="outlined"
+                  sx={{ width: "100%" }}
+                >
+                  {types.map((bidType) => (
+                    <MenuItem key={bidType} value={bidType}>
+                      {bidType}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              {props.bidType == "Expiry Bid" ?
+                <Grid item xs={4}>
+                  <TextField
+
+                    label="Expiry"
+                    id="expiry"
+                    helperText="Mention the expiry date"
+                    variant="outlined"
+                    onChange={expiryChangeHandler}
+                    sx={{ width: "100%" }}
+                  />
+                </Grid>
+                :
+                <Grid item xs={4}>
+                  <TextField
+
+                    label="Expiry"
+                    id="expiry"
+                    helperText="Mention the expiry date"
+                    variant="outlined"
+                    onChange={expiryChangeHandler}
+                    sx={{ width: "100%" }}
+                  />
+                </Grid>
+              }
 
             </Grid>
-            
+
 
             <Grid item xs={12}>
               <div>
@@ -297,8 +315,8 @@ export default function NewLand(props) {
                 </label>
               </div>
               <div>
-                
-                
+
+
                 <br />
                 <Button
                   type="submit"

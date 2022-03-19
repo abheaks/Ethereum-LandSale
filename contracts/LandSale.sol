@@ -3,6 +3,7 @@
 pragma solidity ^0.8.1;
 
 import "./Land.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract LandSale is LandRegistration {
     //address public owner;
@@ -75,8 +76,13 @@ contract LandSale is LandRegistration {
         );
     }
 
+    using SafeMath for uint256;
+
     function assetTransfer(uint256 landID) public {
-        payable(ownerOf(landID)).transfer(BidDetails[landID].highestBid);
+        payable(ownerOf(landID)).transfer(
+            BidDetails[landID].highestBid.mul(4).div(5)
+        );
+        payable(owner()).transfer(BidDetails[landID].highestBid.mul(1).div(5));
         safeTransferFrom(
             ownerOf(landID),
             BidDetails[landID].highestBidder,

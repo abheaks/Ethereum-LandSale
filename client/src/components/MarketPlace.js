@@ -47,7 +47,7 @@ export default function MarketPlace(props) {
       console.log("Today", new Date().toLocaleDateString());
       console.log("Expire", date.toLocaleDateString())
       if (new Date().toLocaleDateString() >= date.toLocaleDateString()) {
-        newLand.expired = false;
+        //newLand.expired = false;
         console.log("Expired", newLand.expired);
       }
       landDetailsList.push(newLand);
